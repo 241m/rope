@@ -38,6 +38,9 @@ func TestInsert(t *testing.T) {
 
 	rope = rope.InsertString(rope.Length(), "!")
 	expectString("hello, world!", rope.String(), t)
+
+	rope = rope.InsertString(0, "print ")
+	expectString("print hello, world!", rope.String(), t)
 }
 
 func TestSplit(t *testing.T) {
@@ -45,6 +48,20 @@ func TestSplit(t *testing.T) {
 	left, right := rope.Split(3)
 	expectString("how", left.String(), t)
 	expectString(" now", right.String(), t)
+
+	ropeX := NewString(strings.Repeat("A", 4097)).AppendString(strings.Repeat("A", 1137))
+	left, right = ropeX.Split(0)
+	expectInt(0, left.Length(), t)
+	expectInt(4097+1137, right.Length(), t)
+
+	left, right = ropeX.Split(4097 + 1137)
+	expectInt(4097+1137, left.Length(), t)
+	expectInt(0, right.Length(), t)
+
+	ropeY := NewString(strings.Repeat("A", 4097)).AppendString(strings.Repeat("A", 4097))
+	left, right = ropeY.Split(4097)
+	expectInt(4097, left.Length(), t)
+	expectInt(4097, right.Length(), t)
 }
 
 func TestSlice(t *testing.T) {
@@ -70,6 +87,16 @@ func TestDelete(t *testing.T) {
 	rope = rope.Delete(8, 6)
 
 	expectString("how now cow", rope.String(), t)
+
+	rope1 := NewString("how now brown cow")
+	rope1 = rope1.Delete(8, 0)
+
+	expectString("how now brown cow", rope1.String(), t)
+
+	rope2 := NewString("12345678")
+	rope2 = rope2.Delete(8, 1)
+
+	expectString("12345678", rope2.String(), t)
 }
 
 func TestEqual(t *testing.T) {
@@ -114,6 +141,12 @@ func TestEqual(t *testing.T) {
 	ropeX = ropeX.AppendString("X")
 	ropeY = ropeY.AppendString("Y")
 	if ropeX.Equal(ropeY) {
+		t.Fatalf("expected ropes not to be equal")
+	}
+
+	ropeL := NewString("different")
+	ropeR := NewString("length")
+	if ropeL.Equal(ropeR) {
 		t.Fatalf("expected ropes not to be equal")
 	}
 }
